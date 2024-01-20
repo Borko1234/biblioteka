@@ -5,7 +5,15 @@ class LibraryManagementGUI:
     def __init__(self, master, filename):
         self.master = master
         master.title("Library Management System")
-        master.geometry("400x200")  # Set the size of the window
+
+        # Window size and centering
+        window_width = 400
+        window_height = 200
+        screen_width = master.winfo_screenwidth()
+        screen_height = master.winfo_screenheight()
+        center_x = int((screen_width / 2) - (window_width / 2))
+        center_y = int((screen_height / 2) - (window_height / 2))
+        master.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
 
         self.filename = filename
         self.book_loans = []
