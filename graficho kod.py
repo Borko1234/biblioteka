@@ -4,11 +4,11 @@ from tkinter import messagebox
 class LibraryManagementGUI:
     def __init__(self, master, filename):
         self.master = master
-        master.title("Library Management System")
+        master.title("")
 
         # Window size and centering
-        window_width = 400
-        window_height = 200
+        window_width = 500
+        window_height = 300
         screen_width = master.winfo_screenwidth()
         screen_height = master.winfo_screenheight()
         center_x = int((screen_width / 2) - (window_width / 2))
@@ -25,32 +25,28 @@ class LibraryManagementGUI:
         button_font = ('Arial', 12)
 
         # Layout
-        self.label1 = tk.Label(master, text="Book Name:", font=label_font)
+        self.label1 = tk.Label(master, text="Име на книгата:", font=label_font)
         self.label1.grid(row=0, column=0, sticky="w")
 
-        self.book_name_entry = tk.Entry(master, font=entry_font)
-        self.book_name_entry.grid(row=0, column=1, sticky="ew")
+        self.kniga_ime_entry = tk.Entry(master, font=entry_font)
+        self.kniga_ime_entry.grid(row=0, column=1, sticky="ew")
 
-        self.label2 = tk.Label(master, text="Borrower's Name:", font=label_font)
-        self.label2.grid(row=1, column=0, sticky="w")
+        self.label2 = tk.Label(master, text="Автор: ", font=label_font)
+        self.label2.grid(row=2, column=0, sticky="w")
 
-        self.borrower_name_entry = tk.Entry(master, font=entry_font)
-        self.borrower_name_entry.grid(row=1, column=1, sticky="ew")
+        self.kniga_avtor_entry = tk.Entry(master, font=entry_font)
+        self.kniga_avtor_entry.grid(row=2, column=1, sticky="ew")
 
-        self.label3 = tk.Label(master, text="Loan Period (days):", font=label_font)
-        self.label3.grid(row=2, column=0, sticky="w")
+        self.label3 = tk.Label(master, text="Дата на вписване:", font=label_font)
+        self.label3.grid(row=4, column=0, sticky="w")
 
         self.loan_period_entry = tk.Entry(master, font=entry_font)
-        self.loan_period_entry.grid(row=2, column=1, sticky="ew")
+        self.loan_period_entry.grid(row=4, column=1, sticky="ew")
 
-        self.add_button = tk.Button(master, text="Add Loan", command=self.add_loan, font=button_font)
-        self.add_button.grid(row=3, column=0, sticky="ew")
-
-        self.remove_button = tk.Button(master, text="Remove Loan", command=self.remove_loan, font=button_font)
-        self.remove_button.grid(row=3, column=1, sticky="ew")
-
-        self.view_button = tk.Button(master, text="View All Loans", command=self.view_loans, font=button_font)
-        self.view_button.grid(row=4, column=0, columnspan=2, sticky="ew")
+        self.add_button = tk.Button(master, text="Добавяне на книгата", command=self.add_loan, font=button_font)
+        self.add_button.grid(row=10, column=0, sticky="ew")
+        self.view_button = tk.Button(master, text="Инвентар", command=self.view_loans, font=button_font)
+        self.view_button.grid(row=10, column=1, columnspan=2, sticky="ew")
 
         # Grid configuration
         master.grid_columnconfigure(1, weight=1)
@@ -59,10 +55,10 @@ class LibraryManagementGUI:
         try:
             with open(self.filename, 'r') as file:
                 for line in file:
-                    book_name, borrower_name, loan_period = line.strip().split(',')
+                    kniga_ime, kniga_avtor, loan_period = line.strip().split(',')
                     self.book_loans.append({
-                        "book_name": book_name,
-                        "borrower_name": borrower_name,
+                        "Име на книгата: ":kniga_ime,
+                        "borrower_name":kniga_avtor,
                         "loan_period": loan_period
                     })
         except FileNotFoundError:
@@ -71,31 +67,26 @@ class LibraryManagementGUI:
     def save_loans(self):
         with open(self.filename, 'w') as file:
             for loan in self.book_loans:
-                file.write(f"{loan['book_name']},{loan['borrower_name']},{loan['loan_period']}\n")
+                file.write(f"{loan['Име на книгата: ']},{loan['borrower_name']},{loan['loan_period']}\n")
 
     def add_loan(self):
-        book_name = self.book_name_entry.get()
-        borrower_name = self.borrower_name_entry.get()
+        kniga_ime = self.kniga_ime_entry.get()
+        kniga_avtor = self.kniga_avtor_entry.get()
         loan_period = self.loan_period_entry.get()
 
         self.book_loans.append({
-            "book_name": book_name,
-            "borrower_name": borrower_name,
-            "loan_period": loan_period
+            "Име на книгата: ": kniga_ime,
+            "borrower_name": kniga_avtor,
+            "loan_period": loan_period,
         })
         self.save_loans()
 
-        messagebox.showinfo("Success", "Book loan added successfully")
-
-    def remove_loan(self):
-        book_name = self.book_name_entry.get()
-        self.book_loans = [loan for loan in self.book_loans if loan['book_name'] != book_name]
-        self.save_loans()
-
-        messagebox.showinfo("Success", "Book loan removed successfully")
+        messagebox.showinfo("Success", "Книгата е добавена успешно!")
 
     def view_loans(self):
-        loans = "\n".join([f"Book: {loan['book_name']}, Borrowed By: {loan['borrower_name']}, Loan Period: {loan['loan_period']} days" for loan in self.book_loans])
+        loans = "\n".join(
+            [f"Book: {loan['kniga_ime']}, Автор: {loan['kniga_avtor']}, Дата на вписване: {loan['loan_period']} days"
+             for loan in self.book_loans])
         messagebox.showinfo("All Book Loans", loans)
 
 # Run the application
