@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-
+#opravi signaturata ne e dovurshena
 class LibraryManagementGUI:
     def __init__(self, master, filename):
         self.master = master
@@ -42,6 +42,12 @@ class LibraryManagementGUI:
 
         self.data_vpisvane_entry = tk.Entry(master, font=entry_font)
         self.data_vpisvane_entry.grid(row=4, column=1, sticky="ew")
+        
+        self.label3 = tk.Label(master, text="Сигнатура", font=label_font)
+        self.label3.grid(row=6, column=0, sticky="w")
+
+        self.signatura_entry = tk.Entry(master, font=entry_font)
+        self.signatura_entry.grid(row=6, column=1, sticky="ew")
 
         self.add_button = tk.Button(master, text="Добавяне на книгата", command=self.add_loan, font=button_font)
         self.add_button.grid(row=10, column=0, sticky="ew")
@@ -55,7 +61,7 @@ class LibraryManagementGUI:
         try:
             with open(self.filename, 'r') as file:
                 for line in file:
-                    kniga_ime, kniga_avtor, data_vpisvane = line.strip().split(',')
+                    kniga_ime, kniga_avtor, data_vpisvane,signatura = line.strip().split(',')
                     self.book_loans.append({
                         "Име на книгата: ":kniga_ime,
                         "Автор на книгата":kniga_avtor,
