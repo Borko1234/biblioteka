@@ -40,8 +40,8 @@ class LibraryManagementGUI:
         self.label3 = tk.Label(master, text="Дата на вписване:", font=label_font)
         self.label3.grid(row=4, column=0, sticky="w")
 
-        self.loan_period_entry = tk.Entry(master, font=entry_font)
-        self.loan_period_entry.grid(row=4, column=1, sticky="ew")
+        self.data_vpisvane_entry = tk.Entry(master, font=entry_font)
+        self.data_vpisvane_entry.grid(row=4, column=1, sticky="ew")
 
         self.add_button = tk.Button(master, text="Добавяне на книгата", command=self.add_loan, font=button_font)
         self.add_button.grid(row=10, column=0, sticky="ew")
@@ -55,11 +55,11 @@ class LibraryManagementGUI:
         try:
             with open(self.filename, 'r') as file:
                 for line in file:
-                    kniga_ime, kniga_avtor, loan_period = line.strip().split(',')
+                    kniga_ime, kniga_avtor, data_vpisvane = line.strip().split(',')
                     self.book_loans.append({
                         "Име на книгата: ":kniga_ime,
-                        "borrower_name":kniga_avtor,
-                        "loan_period": loan_period
+                        "Автор на книгата":kniga_avtor,
+                        "Дата на вписване: ": data_vpisvane,
                     })
         except FileNotFoundError:
             pass
@@ -67,27 +67,29 @@ class LibraryManagementGUI:
     def save_loans(self):
         with open(self.filename, 'w') as file:
             for loan in self.book_loans:
-                file.write(f"{loan['Име на книгата: ']},{loan['borrower_name']},{loan['loan_period']}\n")
+                file.write(f"{loan['Име на книгата: ']},{loan['Автор на книгата']},{loan['Дата на вписване: ']}\n")
 
     def add_loan(self):
         kniga_ime = self.kniga_ime_entry.get()
         kniga_avtor = self.kniga_avtor_entry.get()
-        loan_period = self.loan_period_entry.get()
+        data_vpisvane = self.data_vpisvane_entry.get()
 
         self.book_loans.append({
             "Име на книгата: ": kniga_ime,
-            "borrower_name": kniga_avtor,
-            "loan_period": loan_period,
+            "Автор на книгата: ": kniga_avtor,
+            "Дата на вписване: ": data_vpisvane,
         })
         self.save_loans()
 
-        messagebox.showinfo("Success", "Книгата е добавена успешно!")
+        messagebox.showinfo("Успешно", "Книгата е добавена успешно!")
 
     def view_loans(self):
         loans = "\n".join(
-            [f"Book: {loan['kniga_ime']}, Автор: {loan['kniga_avtor']}, Дата на вписване: {loan['loan_period']} days"
-             for loan in self.book_loans])
+            [
+                f"Book: {loan['Име на книгата: ']}, Автор: {loan['Автор на книгата']}, Дата на вписване: {loan['Дата на вписване: ']} days"
+                for loan in self.book_loans])
         messagebox.showinfo("All Book Loans", loans)
+
 
 # Run the application
 root = tk.Tk()
