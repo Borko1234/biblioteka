@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 
-# opravi signaturata ne e dovurshena
+
 class LibraryManagementGUI:
     def __init__(self, master, filename):
         self.master = master
