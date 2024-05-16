@@ -2,11 +2,10 @@ import tkinter as tk
 from tkinter import messagebox
 
 
-
 class LibraryManagementGUI:
     def __init__(self, master, filename):
         self.master = master
-        master.title("")
+        master.title("Библиотечен мениджър")
 
         # Window size and centering
         window_width = 500
@@ -154,9 +153,16 @@ class LibraryManagementGUI:
             ])
         messagebox.showinfo("All Book Loans", loans)
 
+def run_app():
+    root = tk.Tk()
+    filename = "library_loans.txt"
+    app = LibraryManagementGUI(root, filename)
+    root.mainloop()
 
-# Run the application
-root = tk.Tk()
-filename = "library_loans.txt"
-app = LibraryManagementGUI(root, filename)
-root.mainloop()
+
+
+
+
+import BiblotekaClass as Bc
+
+Bc.run_app()
