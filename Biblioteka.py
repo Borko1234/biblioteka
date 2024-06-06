@@ -1,29 +1,28 @@
 import tkinter as tk
-from tkinter import messagebox
 import sqlite3
 
 
 def create_database_and_table():
     cnt = sqlite3.connect("inventar.db")
     cursor = cnt.cursor()
-    cursor.execute(
-        """CREATE TABLE available (
-        title TEXT,
-        date TEXT,
-        inventar_num INTEGER,
-        signatura INTEGER,
-        bg_avtor TEXT,
-        chujd_avtor TEXT,
-        nalichen_broi INTEGER
-        )"""
+    available_sql = """
+    CREATE TABLE IF NOT EXISTS available (
+    title TEXT,
+    date TEXT,
+    inventar_num INTEGER,
+    signatura INTEGER,
+    bg_avtor TEXT,
+    chujd_avtor TEXT,
+    nalichen_broi INTEGER
     )
+    """
+    cursor.execute(available_sql)
     cnt.commit()
 
 
 def run_app():
     root = tk.Tk()
-    filename = "library_loans.txt"
-    app = LibraryManagementGUI(root, filename)
+    app = LibraryManagementGUI
     root.mainloop()
 
 
