@@ -3,6 +3,7 @@ import sqlite3
 
 cnt = sqlite3.connect("inventar.db")
 
+
 def create_database_and_table():
     cursor = cnt.cursor()
     available_sql = """
@@ -113,20 +114,24 @@ class LibraryManagementGUI:
         #
         # master.grid_columnconfigure(1, weight=1)
 
-    import sqlite3
-
-    def add_project(conn, project):
-        sql = ''' INSERT INTO projects(name,begin_date,end_date)
-                  VALUES(?,?,?) '''
-        cur = conn.cursor()
-        cur.execute(sql, project)
-        conn.commit()
+    def add_loan(self):
+        a = self.kniga_ime_entry
+        b = self.kniga_avtor_entry
+        c = self.data_vpisvane_entry
+        d = self.inventar_num_entry
+        e = self.signatura_entry
+        f = self.bg_avtor_entry
+        g = self.chujd_avtor_entry
+        h = self.nalichen_broi_entry
+        sql = 'INSERT INTO available VALUES(a,b,c,d,e,f,g,h)'
+        cur = cnt.cursor()
+        cur.execute(sql)
+        cnt.commit()
         return cur.lastrowid
 
-    def add_task(conn, task):
-        sql = '''INSERT INTO tasks(name,priority,status_id,project_id,begin_date,end_date)
-                 VALUES(?,?,?,?,?,?) '''
-        cur = conn.cursor()
+    def remove_loan(self, task):
+        sql = "INSERT INTO available VALUES(kniga_ime_entry,kniga_avtor_entry,data_vpisvane_entry,inventar_num_entry,signatura_entry,bg_avtor_entry,nalichen_broi_entry)"
+        cur = cnt.cursor()
         cur.execute(sql, task)
-        conn.commit()
+        cnt.commit()
         return cur.lastrowid
