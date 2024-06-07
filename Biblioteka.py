@@ -192,7 +192,7 @@ class LibraryManagementGUI:
                 break
         cnt.commit()
 
-    def view_loans(self):
+        def view_loans(self):
         cur = cnt.cursor()
         # query = f"SELECT * FROM taken"
         # cur.execute(query)
@@ -205,7 +205,7 @@ class LibraryManagementGUI:
         # else:
         #     messagebox.showinfo("Table Data", "Няма книги.")
 
-        table_name = "taken"
+        table_name = "available"
 
         query = f"SELECT * FROM {table_name}"
 
@@ -217,6 +217,11 @@ class LibraryManagementGUI:
             print("-" * 70)  # Adjust width based on column names (optional)
             column_names = [desc[0] for desc in cur.description]  # Get column names
             print(", ".join(column_names))  # Print column names separated by commas
+
+            for row in all_rows:
+                print(", ".join([str(val) for val in row]))  # Convert each value to string
+        else:
+            print("No rows found in", table_name)
 
             for row in all_rows:
                 print(", ".join([str(val) for val in row]))  # Convert each value to string
