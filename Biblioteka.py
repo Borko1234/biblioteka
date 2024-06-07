@@ -103,23 +103,34 @@ class LibraryManagementGUI:
         self.chujd_avtor_entry.grid(row=12, column=1, sticky="ew")
 
         self.add_button = tk.Button(
-            master, text="Даване на книгата", command=self.add_loan, font=font
+            master, text="Добавяне на книга", command=self.add_book, font=font
         )
         self.add_button.grid(row=16, column=0, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Инвентар", command=self.view_loans, font=font
+            master, text="Инвентар", command=self.view_invent, font=font
         )
         self.view_button.grid(row=16, column=1, columnspan=2, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Връщане на книгата", command=self.remove_loan, font=font
+            master, text="Отдаване на книга", command=self.loan_book, font=font
         )
         self.view_button.grid(row=16, column=2, columnspan=2, sticky="ew")
 
-        master.grid_columnconfigure(1, weight=1)
+        self.view_button = tk.Button(
+            master, text="Взети книги", command=self.view_loans, font=font
+        )
+        self.view_button.grid(row=18, column=0, columnspan=2, sticky="ew")
 
-    def add_loan(self):
+        self.view_button = tk.Button(
+            master, text="Връщане на книга", command=self.return_book, font=font
+        )
+        self.view_button.grid(row=18, column=1, columnspan=2, sticky="ew")
+
+        master.grid_columnconfigure(1, weight=1)
+        
+    # add book raboti
+    def add_book(self):
         data = [(self.ime.get(),
                  self.avtor.get(),
                  self.vpisvane.get(),
@@ -143,7 +154,8 @@ class LibraryManagementGUI:
         cur.execute(insert_query_multiple, *data)
         cnt.commit()
 
-    def remove_loan(self):
+    # loan book mai ne raboti
+    def loan_book(self):
         cur = cnt.cursor()
         table_name = "available"
         table_name_taken = "taken"
@@ -191,8 +203,10 @@ class LibraryManagementGUI:
                 cur.execute(delete_query, (row[0],))
                 break
         cnt.commit()
-
-        def view_loans(self):
+        
+        # view invent raboti
+        
+    def view_invent(self):
         cur = cnt.cursor()
         # query = f"SELECT * FROM taken"
         # cur.execute(query)
@@ -223,7 +237,39 @@ class LibraryManagementGUI:
         else:
             print("No rows found in", table_name)
 
+    # tova e sushtoto kato gornoto no trqbva da promenq promenlivite
+    def view_loans(self):
+        cur = cnt.cursor()
+        # query = f"SELECT * FROM taken"
+        # cur.execute(query)
+        # data = cur.fetchall()
+        # message = ""
+        # for row in data:
+        #     message += ", ".join(str(element) for element in row) + "\n"
+        # if message:
+        #     messagebox.showinfo("Table Data", message)
+        # else:
+        #     messagebox.showinfo("Table Data", "Няма книги.")
+
+        table_name = "taken"
+
+        query = f"SELECT * FROM {table_name}"
+
+        cur.execute(query)
+
+        all_rows = cur.fetchall()
+
+        if all_rows:
+            print("-" * 70)  # Adjust width based on column names (optional)
+            column_names = [desc[0] for desc in cur.description]  # Get column names
+            print(", ".join(column_names))  # Print column names separated by commas
+
             for row in all_rows:
                 print(", ".join([str(val) for val in row]))  # Convert each value to string
         else:
             print("No rows found in", table_name)
+        
+    # return book vidimo nishto ne pravi
+    # trqbva da prehvurlq ot taken kum available
+    def return_book(self):
+        print('a')
