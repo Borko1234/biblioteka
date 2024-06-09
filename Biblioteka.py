@@ -128,7 +128,7 @@ class LibraryManagementGUI:
         self.view_button.grid(row=18, column=1, columnspan=2, sticky="ew")
 
         master.grid_columnconfigure(1, weight=1)
-        
+
     # add book raboti
     def add_book(self):
         data = [(self.ime.get(),
@@ -203,21 +203,11 @@ class LibraryManagementGUI:
                 cur.execute(delete_query, (row[0],))
                 break
         cnt.commit()
-        
+
         # view invent raboti
-        
+
     def view_invent(self):
         cur = cnt.cursor()
-        # query = f"SELECT * FROM taken"
-        # cur.execute(query)
-        # data = cur.fetchall()
-        # message = ""
-        # for row in data:
-        #     message += ", ".join(str(element) for element in row) + "\n"
-        # if message:
-        #     messagebox.showinfo("Table Data", message)
-        # else:
-        #     messagebox.showinfo("Table Data", "Няма книги.")
 
         table_name = "available"
 
@@ -237,19 +227,9 @@ class LibraryManagementGUI:
         else:
             print("No rows found in", table_name)
 
-    # tova e sushtoto kato gornoto no trqbva da promenq promenlivite
+    # tova e sushto raboti
     def view_loans(self):
         cur = cnt.cursor()
-        # query = f"SELECT * FROM taken"
-        # cur.execute(query)
-        # data = cur.fetchall()
-        # message = ""
-        # for row in data:
-        #     message += ", ".join(str(element) for element in row) + "\n"
-        # if message:
-        #     messagebox.showinfo("Table Data", message)
-        # else:
-        #     messagebox.showinfo("Table Data", "Няма книги.")
 
         table_name = "taken"
 
@@ -268,7 +248,7 @@ class LibraryManagementGUI:
                 print(", ".join([str(val) for val in row]))  # Convert each value to string
         else:
             print("No rows found in", table_name)
-        
+
     # return book vidimo nishto ne pravi
     # trqbva da prehvurlq ot taken kum available
     def return_book(self):
