@@ -125,7 +125,7 @@ class LibraryManagementGUI:
         self.view_button = tk.Button(
             master, text="Връщане на книга", command=self.return_book, font=font
         )
-        self.view_button.grid(row=18, column=1, columnspan=2, sticky="ew")
+        self.view_button.grid(row=18, column=2, columnspan=2, sticky="ew")
 
         master.grid_columnconfigure(1, weight=1)
 
