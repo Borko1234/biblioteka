@@ -102,6 +102,12 @@ class LibraryManagementGUI:
         self.chujd_avtor_entry = tk.Entry(master, textvariable=self.chujdavtor, font=font)
         self.chujd_avtor_entry.grid(row=12, column=1, sticky="ew")
 
+        self.label9 = tk.Label(master, text="Налични книги", font=font)
+        self.label9.grid(row=14, column=0, sticky="w")
+        self.nalichni_knigi = tk.StringVar()
+        self.nalichni_knigi = tk.Entry(master, textvariable=self.chujdavtor, font=font)
+        self.nalichni_knigi.grid(row=14, column=1, sticky="ew")
+
         self.add_button = tk.Button(
             master, text="Добавяне на книга", command=self.add_book, font=font
         )
