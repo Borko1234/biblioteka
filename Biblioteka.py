@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import sqlite3
 
@@ -135,7 +136,6 @@ class LibraryManagementGUI:
 
         master.grid_columnconfigure(1, weight=1)
 
-    # add book raboti
     def add_book(self):
         data = [(self.ime.get(),
                  self.avtor.get(),
@@ -152,19 +152,186 @@ class LibraryManagementGUI:
         inventar_num_entry,
         signatura_entry,
         bg_avtor_entry,
-        chujd_avtor_entry) 
+        chujd_avtor_entry,
+        nalichni_knigi) 
 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
         cur = cnt.cursor()
         cur.execute(insert_query_multiple, *data)
         cnt.commit()
 
-    # loan book mai ne raboti
     def loan_book(self):
         cur = cnt.cursor()
         table_name = "available"
         table_name_taken = "taken"
+
+        search_value = [(self.ime.get(),
+                         self.avtor.get(),
+                         self.vpisvane.get(),
+                         self.invent_num.get(),
+                         self.signat.get(),
+                         self.bgavtor.get(),
+                         self.chujdavtor.get())]
+
+        column_names = ["kniga_ime_entry",
+                        "kniga_avtor_entry",
+                        "data_vpisvane_entry",
+                        "inventar_num_entry",
+                        "signatura_entry",
+                        "bg_avtor_entry",
+                        "chujd_avtor_entry",
+                        "nalichni_knigi"]
+
+        conditions = []
+
+        for i, value in enumerate(search_value):
+            column = column_names[i]
+            conditions.append(f"{column} = ?")
+
+            where_clause = " AND ".join(conditions)
+
+            query = f"SELECT * FROM {table_name} WHERE {where_clause}"
+
+            cur.execute(query, search_value)
+
+            row = cur.fetchone()
+            if row:
+                insert_query = f"""
+                            INSERT INTO {table_name_taken} ({", ".join(column_names)})
+                            VALUES (?, ?, ?)
+                            """
+                cur.execute(insert_query, row)
+
+                delete_query = f"""
+                            DELETE FROM {table_name} WHERE {column_names[0]} = ?
+                            """
+                cur.execute(delete_query, (row[0],))
+                break
+        cnt.commit()
+
+    def get_column_names(self):
+        return ["kniga_ime_entry",
+                "kniga_avtor_entry",
+                "data_vpisvane_entry",
+                "inventar_num_entry",
+                "signatura_entry",
+                "bg_avtor_entry",
+                "chujd_avtor_entry",
+                "nalichni_knigi"]
+
+    def view_invent(self):
+        table_window = tk.Toplevel(self.master)
+        table_window.title("Инвентарна книга")
+
+        table = ttk.Treeview(table_window, columns=self.get_column_names() + ["Count"])
+        table.heading("#0", text="ID")
+
+        for idx, column in enumerate(self.get_column_names()):
+            table.heading(column, text=column)
+
+        table.heading("Count", text="Брой")
+
+        table.grid(row=0, column=0)
+
+        cur = cnt.cursor()
+        table_name = "available"
+
+        count_query = f"""
+            SELECT kniga_ime_entry, COUNT(*) AS book_count
+            FROM {table_name}
+            GROUP BY kniga_ime_entry
+            """
+        cur.execute(count_query)
+
+        book_counts = dict(cur.fetchall())
+
+        query = f"SELECT * FROM {table_name}"
+        cur.execute(query)
+        all_rows = cur.fetchall()
+
+        for idx, row in enumerate(all_rows):
+            book_title = row[0]
+            count = book_counts.get(book_title, 0)
+
+            table.insert("", tk.END, values=(idx + 1,) + row + (count,))
+
+        nalichni_table = "nalichni_knigi"
+        update_query = f"""
+            UPDATE {nalichni_table}
+            SET nalichni_knigi = ?
+            WHERE kniga_ime = ?
+            """
+
+        for book_title, count in book_counts.items():
+            cur.execute(f"SELECT nalichni_knigi FROM {nalichni_table} WHERE kniga_ime = ?", (book_title,))
+            existing_count = cur.fetchone()
+
+            if existing_count and existing_count[0] != count:
+                cur.execute(update_query, (count, book_title))
+
+        cnt.commit()
+
+        table_window.mainloop()
+
+    def view_loans(self):
+        table_window = tk.Toplevel(self.master)
+        table_window.title("Инвентарна книга")
+
+        table = ttk.Treeview(table_window, columns=self.get_column_names() + ["Count"])
+        table.heading("#0", text="ID")
+
+        for idx, column in enumerate(self.get_column_names()):
+            table.heading(column, text=column)
+
+        table.heading("Count", text="Брой")
+
+        table.grid(row=0, column=0)
+
+        cur = cnt.cursor()
+        table_name = "available"
+
+        count_query = f"""
+                    SELECT kniga_ime_entry, COUNT(*) AS book_count
+                    FROM {table_name}
+                    GROUP BY kniga_ime_entry
+                    """
+        cur.execute(count_query)
+
+        book_counts = dict(cur.fetchall())
+
+        query = f"SELECT * FROM {table_name}"
+        cur.execute(query)
+        all_rows = cur.fetchall()
+
+        for idx, row in enumerate(all_rows):
+            book_title = row[0]
+            count = book_counts.get(book_title, 0)
+
+            table.insert("", tk.END, values=(idx + 1,) + row + (count,))
+
+        nalichni_table = "nalichni_knigi"
+        update_query = f"""
+                    UPDATE {nalichni_table}
+                    SET nalichni_knigi = ?
+                    WHERE kniga_ime = ?
+                    """
+
+        for book_title, count in book_counts.items():
+            cur.execute(f"SELECT nalichni_knigi FROM {nalichni_table} WHERE kniga_ime = ?", (book_title,))
+            existing_count = cur.fetchone()
+
+            if existing_count and existing_count[0] != count:
+                cur.execute(update_query, (count, book_title))
+
+        cnt.commit()
+
+        table_window.mainloop()
+
+    def return_book(self):
+        cur = cnt.cursor()
+        table_name = "taken"
+        table_name_taken = "available"
 
         search_value = [(self.ime.get(),
                          self.avtor.get(),
@@ -197,65 +364,15 @@ class LibraryManagementGUI:
             row = cur.fetchone()
             if row:
                 insert_query = f"""
-                            INSERT INTO {table_name_taken} ({", ".join(column_names)})
-                            VALUES (?, ?, ?)
-                        """
+                                    INSERT INTO {table_name_taken} ({", ".join(column_names)})
+                                    VALUES (?, ?, ?)
+                                """
                 cur.execute(insert_query, row)
 
                 # Construct DELETE query for 'available' table
                 delete_query = f"""
-                            DELETE FROM {table_name} WHERE {column_names[0]} = ?
-                        """
+                                    DELETE FROM {table_name} WHERE {column_names[0]} = ?
+                                """
                 cur.execute(delete_query, (row[0],))
                 break
         cnt.commit()
-
-        # view invent raboti
-
-    def view_invent(self):
-        cur = cnt.cursor()
-
-        table_name = "available"
-
-        query = f"SELECT * FROM {table_name}"
-
-        cur.execute(query)
-
-        all_rows = cur.fetchall()
-
-        if all_rows:
-            print("-" * 70)  # Adjust width based on column names (optional)
-            column_names = [desc[0] for desc in cur.description]  # Get column names
-            print(", ".join(column_names))  # Print column names separated by commas
-
-            for row in all_rows:
-                print(", ".join([str(val) for val in row]))  # Convert each value to string
-        else:
-            print("No rows found in", table_name)
-
-    # tova e sushto raboti
-    def view_loans(self):
-        cur = cnt.cursor()
-
-        table_name = "taken"
-
-        query = f"SELECT * FROM {table_name}"
-
-        cur.execute(query)
-
-        all_rows = cur.fetchall()
-
-        if all_rows:
-            print("-" * 70)  # Adjust width based on column names (optional)
-            column_names = [desc[0] for desc in cur.description]  # Get column names
-            print(", ".join(column_names))  # Print column names separated by commas
-
-            for row in all_rows:
-                print(", ".join([str(val) for val in row]))  # Convert each value to string
-        else:
-            print("No rows found in", table_name)
-
-    # return book vidimo nishto ne pravi
-    # trqbva da prehvurlq ot taken kum available
-    def return_book(self):
-        print('a')
