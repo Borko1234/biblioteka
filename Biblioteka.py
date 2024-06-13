@@ -110,29 +110,37 @@ class LibraryManagementGUI:
         self.nalichni_knigi.grid(row=14, column=1, sticky="ew")
 
         self.add_button = tk.Button(
-            master, text="Добавяне на книга", command=self.add_book, font=font
+            master, text="Добавяне на книга", command=self.add_book, font=font, bg="#d1cfcf",relief="raised"
         )
         self.add_button.grid(row=16, column=0, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Инвентар", command=self.view_invent, font=font
+            master, text="Инвентар", command=self.view_invent, font=font, bg="#d1cfcf",relief="raised"
         )
-        self.view_button.grid(row=16, column=1, columnspan=2, sticky="ew")
+        self.view_button.grid(row=16, column=1, columnspan=1, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Отдаване на книга", command=self.loan_book, font=font
+            master, text="Отдаване на книга", command=self.loan_book, font=font,bg="#d1cfcf",relief="raised"
         )
         self.view_button.grid(row=16, column=2, columnspan=2, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Взети книги", command=self.view_loans, font=font
+            master, text="Взети книги", command=self.view_loans, font=font,bg="#d1cfcf",relief="raised"
         )
-        self.view_button.grid(row=18, column=0, columnspan=2, sticky="ew")
+        self.view_button.grid(row=18, column=1, columnspan=1, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Връщане на книга", command=self.return_book, font=font
+            master, text="Връщане на книга", command=self.return_book, font=font,bg="#d1cfcf",relief="raised"
         )
         self.view_button.grid(row=18, column=2, columnspan=2, sticky="ew")
+        self.view_button = tk.Button(
+            master, text="Редакция", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
+        )
+        self.view_button.grid(row=18, column=0, sticky="ew")
+        self.view_button = tk.Button(
+            master, text="Премахване на книга", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
+        )
+        self.view_button.grid(row=20, column=0, sticky="ew")
 
         master.grid_columnconfigure(1, weight=1)
 
@@ -289,7 +297,7 @@ class LibraryManagementGUI:
         table.grid(row=0, column=0)
 
         cur = cnt.cursor()
-        table_name = "available"
+        table_name = "taken"
 
         count_query = f"""
                     SELECT kniga_ime_entry, COUNT(*) AS book_count
