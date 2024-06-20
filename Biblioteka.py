@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 import sqlite3
 
 cnt = sqlite3.connect("inventar.db")
@@ -10,23 +9,25 @@ def create_database_and_table():
     cursor = cnt.cursor()
     available = """
     CREATE TABLE IF NOT EXISTS available (
-    kniga_ime_entry TEXT,
-    kniga_avtor_entry TEXT,
-    data_vpisvane_entry TEXT,
-    inventar_num_entry TEXT,
-    signatura_entry TEXT,
-    bg_avtor_entry TEXT,
-    chujd_avtor_entry TEXT)
+    Име TEXT,
+    Автор TEXT,
+    Дата на вписване TEXT,
+    Инвентар TEXT,
+    Сигнатура TEXT,
+    Бг автор TEXT,
+    Чужд автор TEXT,
+    Наличен брой INT)
     """
     taken = """
-    CREATE TABLE IF NOT EXISTS taken (
-    kniga_ime_entry TEXT,
-    kniga_avtor_entry TEXT,
-    data_vpisvane_entry TEXT,
-    inventar_num_entry TEXT,
-    signatura_entry TEXT,
-    bg_avtor_entry TEXT,
-    chujd_avtor_entry TEXT)
+    CREATE TABLE IF NOT EXISTS available (
+    Име TEXT,
+    Автор TEXT,
+    Дата на вписване TEXT,
+    Инвентар TEXT,
+    Сигнатура TEXT,
+    Бг автор TEXT,
+    Чужд автор TEXT,
+    Наличен брой INT)
     """
     cursor.execute(available)
     cursor.execute(taken)
@@ -35,7 +36,6 @@ def create_database_and_table():
 
 def run_app():
     root = tk.Tk()
-    app = LibraryManagementGUI(root)
     root.mainloop()
 
 
@@ -105,32 +105,33 @@ class LibraryManagementGUI:
 
         self.label9 = tk.Label(master, text="Налични книги", font=font)
         self.label9.grid(row=14, column=0, sticky="w")
-        self.nalichni_knigi = tk.StringVar()
+
+        self.nalichni_knigi = tk.IntVar()
         self.nalichni_knigi = tk.Entry(master, textvariable=self.chujdavtor, font=font)
         self.nalichni_knigi.grid(row=14, column=1, sticky="ew")
 
         self.add_button = tk.Button(
-            master, text="Добавяне на книга", command=self.add_book, font=font, bg="#d1cfcf",relief="raised"
+            master, text="Добавяне на книга", command=self.add_book, font=font, bg="#d1cfcf", relief="raised"
         )
         self.add_button.grid(row=16, column=0, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Инвентар", command=self.view_invent, font=font, bg="#d1cfcf",relief="raised"
+            master, text="Инвентар", command=self.view_invent, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=16, column=1, columnspan=1, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Отдаване на книга", command=self.loan_book, font=font,bg="#d1cfcf",relief="raised"
+            master, text="Отдаване на книга", command=self.loan_book, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=16, column=2, columnspan=2, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Взети книги", command=self.view_loans, font=font,bg="#d1cfcf",relief="raised"
+            master, text="Взети книги", command=self.view_loans, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=18, column=1, columnspan=1, sticky="ew")
 
         self.view_button = tk.Button(
-            master, text="Връщане на книга", command=self.return_book, font=font,bg="#d1cfcf",relief="raised"
+            master, text="Връщане на книга", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=18, column=2, columnspan=2, sticky="ew")
         self.view_button = tk.Button(
@@ -145,140 +146,121 @@ class LibraryManagementGUI:
         master.grid_columnconfigure(1, weight=1)
 
     def add_book(self):
+        cur = cnt.cursor()
         data = [(self.ime.get(),
                  self.avtor.get(),
                  self.vpisvane.get(),
                  self.invent_num.get(),
                  self.signat.get(),
                  self.bgavtor.get(),
-                 self.chujdavtor.get())]
-        insert_query_multiple = """
-        INSERT INTO available (
-        kniga_ime_entry,
-        kniga_avtor_entry,
-        data_vpisvane_entry,
-        inventar_num_entry,
-        signatura_entry,
-        bg_avtor_entry,
-        chujd_avtor_entry,
-        nalichni_knigi) 
+                 self.chujdavtor.get(),
+                 self.nalichni_knigi.get())]
 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        insert_query_multiple = """
+            INSERT INTO available (
+            Име TEXT,
+            Автор TEXT,
+            Дата на вписване TEXT,
+            Инвентар TEXT,
+            Сигнатура TEXT,
+            Бг автор TEXT,
+            Чужд автор TEXT,
+            Наличен брой INT) 
+
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
-        cur = cnt.cursor()
         cur.execute(insert_query_multiple, *data)
         cnt.commit()
 
     def loan_book(self):
         cur = cnt.cursor()
-        table_name = "available"
-        table_name_taken = "taken"
+        available = "available"
+        taken = "taken"
+        data = (self.ime.get(),
+                self.avtor.get(),
+                self.vpisvane.get(),
+                self.invent_num.get(),
+                self.signat.get(),
+                self.bgavtor.get(),
+                self.chujdavtor.get(),
+                self.nalichni_knigi.get())
 
-        search_value = [(self.ime.get(),
-                         self.avtor.get(),
-                         self.vpisvane.get(),
-                         self.invent_num.get(),
-                         self.signat.get(),
-                         self.bgavtor.get(),
-                         self.chujdavtor.get())]
-
-        column_names = ["kniga_ime_entry",
-                        "kniga_avtor_entry",
-                        "data_vpisvane_entry",
-                        "inventar_num_entry",
-                        "signatura_entry",
-                        "bg_avtor_entry",
-                        "chujd_avtor_entry",
-                        "nalichni_knigi"]
-
+        search_value = [(self.ime.get(),)]
+        column_name = ["Име"]
         conditions = []
-
         for i, value in enumerate(search_value):
-            column = column_names[i]
+            column = column_name[i]
             conditions.append(f"{column} = ?")
 
-            where_clause = " AND ".join(conditions)
+        where_clause = " AND ".join(conditions)
 
-            query = f"SELECT * FROM {table_name} WHERE {where_clause}"
+        query = f"SELECT * FROM {taken} WHERE {where_clause}"
+        cur.execute(query, search_value)
 
-            cur.execute(query, search_value)
+        existing_book = cur.fetchone()
 
-            row = cur.fetchone()
-            if row:
-                insert_query = f"""
-                            INSERT INTO {table_name_taken} ({", ".join(column_names)})
-                            VALUES (?, ?, ?)
-                            """
-                cur.execute(insert_query, row)
+        if existing_book:
+            update_query = f"""
+                UPDATE {taken}
+                SET Наличен брой = Наличен брой + 1
+                WHERE {where_clause}
+            """
+            cur.execute(update_query, search_value)
+        else:
+            insert_query = f"""
+                INSERT INTO {taken} ({", ".join(column_name + ["Наличен брой"])})
+                VALUES (?, 1)  # Add with initial count of 1
+            """
+            cur.execute(insert_query, data[:1])
 
-                delete_query = f"""
-                            DELETE FROM {table_name} WHERE {column_names[0]} = ?
-                            """
-                cur.execute(delete_query, (row[0],))
-                break
+        available_count_query = f"""
+            SELECT nalichni_knigi FROM {available} WHERE kniga_ime_entry = ?
+        """
+        cur.execute(available_count_query, (data[0],))
+        current_count = cur.fetchone()
+
+        if current_count:
+            new_count = current_count[0] - 1
+            if new_count >= 0:
+                update_available_query = f"""
+                    UPDATE {available}
+                    SET Наличен брой = ?
+                    WHERE Име = ?
+                """
+                cur.execute(update_available_query, (new_count, data[0]))
         cnt.commit()
 
     def get_column_names(self):
-        return ["kniga_ime_entry",
-                "kniga_avtor_entry",
-                "data_vpisvane_entry",
-                "inventar_num_entry",
-                "signatura_entry",
-                "bg_avtor_entry",
-                "chujd_avtor_entry",
-                "nalichni_knigi"]
+        return ["Име",
+                "Автор",
+                "Дата на вписване",
+                "Инвентар",
+                "Сигнатура",
+                "Бг автор",
+                "Чужд автор",
+                "Наличен брой"]
 
     def view_invent(self):
         table_window = tk.Toplevel(self.master)
         table_window.title("Инвентарна книга")
 
-        table = ttk.Treeview(table_window, columns=self.get_column_names() + ["Count"])
+        table = ttk.Treeview(table_window, columns=self.get_column_names())
         table.heading("#0", text="ID")
 
         for idx, column in enumerate(self.get_column_names()):
             table.heading(column, text=column)
 
-        table.heading("Count", text="Брой")
-
         table.grid(row=0, column=0)
 
         cur = cnt.cursor()
-        table_name = "available"
+        available = "available"
 
-        count_query = f"""
-            SELECT kniga_ime_entry, COUNT(*) AS book_count
-            FROM {table_name}
-            GROUP BY kniga_ime_entry
-            """
-        cur.execute(count_query)
-
-        book_counts = dict(cur.fetchall())
-
-        query = f"SELECT * FROM {table_name}"
+        query = f"SELECT * FROM {available}"
         cur.execute(query)
         all_rows = cur.fetchall()
 
         for idx, row in enumerate(all_rows):
-            book_title = row[0]
-            count = book_counts.get(book_title, 0)
-
-            table.insert("", tk.END, values=(idx + 1,) + row + (count,))
-
-        nalichni_table = "nalichni_knigi"
-        update_query = f"""
-            UPDATE {nalichni_table}
-            SET nalichni_knigi = ?
-            WHERE kniga_ime = ?
-            """
-
-        for book_title, count in book_counts.items():
-            cur.execute(f"SELECT nalichni_knigi FROM {nalichni_table} WHERE kniga_ime = ?", (book_title,))
-            existing_count = cur.fetchone()
-
-            if existing_count and existing_count[0] != count:
-                cur.execute(update_query, (count, book_title))
-
-        cnt.commit()
+            table.insert("", tk.END, values=(idx + 1,) + row)
 
         table_window.mainloop()
 
@@ -286,101 +268,82 @@ class LibraryManagementGUI:
         table_window = tk.Toplevel(self.master)
         table_window.title("Инвентарна книга")
 
-        table = ttk.Treeview(table_window, columns=self.get_column_names() + ["Count"])
+        table = ttk.Treeview(table_window, columns=self.get_column_names())
         table.heading("#0", text="ID")
 
         for idx, column in enumerate(self.get_column_names()):
             table.heading(column, text=column)
 
-        table.heading("Count", text="Брой")
-
         table.grid(row=0, column=0)
 
         cur = cnt.cursor()
-        table_name = "taken"
+        taken = "taken"
 
-        count_query = f"""
-                    SELECT kniga_ime_entry, COUNT(*) AS book_count
-                    FROM {table_name}
-                    GROUP BY kniga_ime_entry
-                    """
-        cur.execute(count_query)
-
-        book_counts = dict(cur.fetchall())
-
-        query = f"SELECT * FROM {table_name}"
+        query = f"SELECT * FROM {taken}"
         cur.execute(query)
         all_rows = cur.fetchall()
 
         for idx, row in enumerate(all_rows):
-            book_title = row[0]
-            count = book_counts.get(book_title, 0)
-
-            table.insert("", tk.END, values=(idx + 1,) + row + (count,))
-
-        nalichni_table = "nalichni_knigi"
-        update_query = f"""
-                    UPDATE {nalichni_table}
-                    SET nalichni_knigi = ?
-                    WHERE kniga_ime = ?
-                    """
-
-        for book_title, count in book_counts.items():
-            cur.execute(f"SELECT nalichni_knigi FROM {nalichni_table} WHERE kniga_ime = ?", (book_title,))
-            existing_count = cur.fetchone()
-
-            if existing_count and existing_count[0] != count:
-                cur.execute(update_query, (count, book_title))
-
-        cnt.commit()
+            table.insert("", tk.END, values=(idx + 1,) + row)
 
         table_window.mainloop()
 
     def return_book(self):
         cur = cnt.cursor()
-        table_name = "taken"
-        table_name_taken = "available"
+        available = "available"
+        taken = "taken"
+        data = (self.ime.get(),
+                self.avtor.get(),
+                self.vpisvane.get(),
+                self.invent_num.get(),
+                self.signat.get(),
+                self.bgavtor.get(),
+                self.chujdavtor.get(),
+                self.nalichni_knigi.get())
 
-        search_value = [(self.ime.get(),
-                         self.avtor.get(),
-                         self.vpisvane.get(),
-                         self.invent_num.get(),
-                         self.signat.get(),
-                         self.bgavtor.get(),
-                         self.chujdavtor.get())]
-
-        column_names = ["kniga_ime_entry",
-                        "kniga_avtor_entry",
-                        "data_vpisvane_entry",
-                        "inventar_num_entry",
-                        "signatura_entry",
-                        "bg_avtor_entry",
-                        "chujd_avtor_entry"]
-
+        search_value = [(self.ime.get(),)]
+        column_name = ["Име"]
         conditions = []
-
         for i, value in enumerate(search_value):
-            column = column_names[i]
+            column = column_name[i]
             conditions.append(f"{column} = ?")
 
-            where_clause = " AND ".join(conditions)
+        available_count_query = f"""
+            SELECT Наличен брой FROM {available} WHERE Име = ?
+        """
+        cur.execute(available_count_query, (data[0],))
+        current_available_count = cur.fetchone()
 
-            query = f"SELECT * FROM {table_name} WHERE {where_clause}"
+        if current_available_count:
+            new_available_count = current_available_count[0] + 1
+            update_available_query = f"""
+                UPDATE {available}
+                SET Наличен брой = ?
+                WHERE Име = ?
+            """
+            cur.execute(update_available_query, (new_available_count, data[0]))
 
-            cur.execute(query, search_value)
+        taken_count_query = f"""
+            SELECT Наличен брой FROM {taken} WHERE Име = ?
+        """
+        cur.execute(taken_count_query, (data[0],))
+        current_taken_count = cur.fetchone()
 
-            row = cur.fetchone()
-            if row:
-                insert_query = f"""
-                                    INSERT INTO {table_name_taken} ({", ".join(column_names)})
-                                    VALUES (?, ?, ?)
-                                """
-                cur.execute(insert_query, row)
+        if current_taken_count:
+            new_taken_count = current_taken_count[0] - 1
 
-                # Construct DELETE query for 'available' table
+            if new_taken_count >= 0:
+                update_taken_query = f"""
+                    UPDATE {taken}
+                    SET Наличен брой = ?
+                    WHERE Име = ?
+                """
+                cur.execute(update_taken_query, (new_taken_count, data[0]))
+            else:
                 delete_query = f"""
-                                    DELETE FROM {table_name} WHERE {column_names[0]} = ?
-                                """
-                cur.execute(delete_query, (row[0],))
-                break
+                    DELETE FROM {taken}
+                    WHERE Име = ?
+                """
+                cur.execute(delete_query, (data[0],))
+
         cnt.commit()
