@@ -129,6 +129,10 @@ class LibraryManagementGUI:
             master, text="Премахване на книга", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=20, column=0, sticky="ew")
+        self.view_button = tk.Button(
+            master, text="Търсене", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
+        )
+        self.view_button.grid(row=20, column=1, sticky="ew")
 
         master.grid_columnconfigure(1, weight=1)
 
@@ -431,3 +435,4 @@ class LibraryManagementGUI:
 
     def search(self):
         print("Hello world")
+        
