@@ -94,7 +94,7 @@ class LibraryManagementGUI:
         self.label9 = tk.Label(master, text="Налични книги", font=font)
         self.label9.grid(row=14, column=0, sticky="w")
         self.nalichni_knigi = tk.IntVar()
-        self.nalichni_knigi = tk.Entry(master, textvariable=self.chujdavtor, font=font)
+        self.nalichni_knigi = tk.Entry(master, textvariable=self.nalichni_knigi, font=font)
         self.nalichni_knigi.grid(row=14, column=1, sticky="ew")
 
         self.add_button = tk.Button(
@@ -122,15 +122,15 @@ class LibraryManagementGUI:
         )
         self.view_button.grid(row=18, column=2, columnspan=2, sticky="ew")
         self.view_button = tk.Button(
-            master, text="Редакция", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
+            master, text="Редакция", command=self.edit_book, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=18, column=0, sticky="ew")
         self.view_button = tk.Button(
-            master, text="Премахване на книга", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
+            master, text="Премахване на книга", command=self.remove_book, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=20, column=0, sticky="ew")
         self.view_button = tk.Button(
-            master, text="Търсене", command=self.return_book, font=font, bg="#d1cfcf", relief="raised"
+            master, text="Търсене", command=self.search, font=font, bg="#d1cfcf", relief="raised"
         )
         self.view_button.grid(row=20, column=1, sticky="ew")
 
@@ -148,9 +148,7 @@ class LibraryManagementGUI:
 
     def add_book(self):
         cur = cnt.cursor()
-        available = "available"
 
-        # Get data from entry fields
         data = (self.ime.get(),
                 self.avtor.get(),
                 self.invent_num.get(),
@@ -159,46 +157,20 @@ class LibraryManagementGUI:
                 self.chujdavtor.get(),
                 self.nalichni_knigi.get())
 
-        # Check if book exists in the 'available' table
-        search_value = [(self.ime.get(),)]
-        column_name = ["Име"]
-        conditions = []
-        for i, value in enumerate(search_value):
-            column = column_name[i]
-            conditions.append(f"{column} = ?")
-
-        where_clause = " AND ".join(conditions)
-
-        query = f"SELECT * FROM {available} WHERE {where_clause}"
-        cur.execute(query, search_value)
-        existing_book = cur.fetchone()
-
-        if existing_book:
-            # If book exists, update available count
-            update_available_count = f"""
-                UPDATE {available}
-                SET Наличен брой = Наличен брой + ?
-                WHERE Име = ?
-            """
-            new_available_count = existing_book[
-                                      7] + self.nalichni_knigi.get()  # Access available count from existing record
-            cur.execute(update_available_count, (new_available_count, data[0]))
-        else:
-            # If book doesn't exist, insert new record with available count
-            insert_query = """
+        insert_query = """
                 INSERT INTO available (
-                Име TEXT,
-                Автор TEXT,
-                Дата на вписване TEXT,
-                Инвентар TEXT,
-                Сигнатура TEXT,
-                Бг автор TEXT,
-                Чужд автор TEXT,
-                Наличен брой INT) 
+                    Име TEXT,
+                    Автор TEXT,
+                    Дата на вписване TEXT,
+                    Инвентар TEXT,
+                    Сигнатура TEXT,
+                    Бг автор TEXT,
+                    Чужд автор TEXT,
+                    Наличен брой INT) 
 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """
-            cur.execute(insert_query, data)
+        cur.execute(insert_query, data)
 
         cnt.commit()
 
@@ -206,19 +178,16 @@ class LibraryManagementGUI:
         cur = cnt.cursor()
         available = "available"
 
-        # Get data from entry fields (assuming these are used for editing)
         data = (self.ime.get(),
-                self.avtor.get(),
-                self.invent_num.get(),
-                self.signat.get(),
-                self.bgavtor.get(),
-                self.chujdavtor.get(),
-                self.nalichni_knigi.get())
+            self.avtor.get(),
+            self.invent_num.get(),
+            self.signat.get(),
+            self.bgavtor.get(),
+            self.chujdavtor.get(),
+            self.nalichni_knigi.get())
 
-        # Get the original book name for identification
-        original_book_name = self.original_book_name  # Assuming this is a variable set elsewhere to store the book name to be edited
+        original_book_name = self.original_book_name
 
-        # Create a search query to find the book by original name
         search_value = [(original_book_name,)]
         column_name = ["Име"]
         conditions = []
@@ -230,67 +199,64 @@ class LibraryManagementGUI:
 
         update_query = f"""
             UPDATE {available}
-            SET Име = ?,
-                Автор = ?,
-                Дата на вписване = ?,
-                Инвентар = ?,
-                Сигнатура = ?,
-                Бг автор = ?,
-                Чужд автор = ?,
-                Наличен брой = ?
-            WHERE {where_clause}
-        """
-        cur.execute(update_query, (*data,))  # Unpack data tuple for update
-
+        SET Име = ?,
+            Автор = ?,
+            Дата на вписване = ?,
+            Инвентар = ?,
+            Сигнатура = ?,
+            Бг автор = ?,
+            Чужд автор = ?,
+            Наличен брой = ?
+        WHERE {where_clause}
+    """
+        cur.execute(update_query, (*data,))
         cnt.commit()
+
+    def clear(self):
+        self.ime.set("")
+        self.avtor.set("")
+        self.invent_num.set("")
+        self.signat.set("")
+        self.bgavtor.set("")
+        self.chujdavtor.set("")
+        self.nalichni_knigi.delete(0, tk.END)
 
     def remove_book(self):
         cur = cnt.cursor()
         available = "available"
 
-        # Get the original book name for identification (assuming this is set elsewhere)
-        original_book_name = self.original_book_name  # Assuming this is a variable set elsewhere to store the book name to be removed
-
-        # Create a search query to find the book by original name
-        search_value = [(original_book_name,)]
-        column_name = ["Име"]
-        conditions = []
-        for i, value in enumerate(search_value):
-            column = column_name[i]
-            conditions.append(f"{column} = ?")
-
-        where_clause = " AND ".join(conditions)
+        name = self.ime.get()
 
         delete_query = f"""
-            DELETE FROM {available}
-            WHERE {where_clause}
+            DELETE FROM {available} WHERE Име = '{name}'
         """
-        cur.execute(delete_query, search_value)
-
+        cur.execute(delete_query)
         cnt.commit()
 
     def view_invent(self):
         table_window = tk.Toplevel(self.master)
         table_window.title("Инвентарна книга")
+        cur = cnt.cursor()
 
         table = ttk.Treeview(table_window, columns=self.get_column_names())
-        table.heading("#0", text="ID")
+
+        table.heading("#0", text="Име")
 
         for idx, column in enumerate(self.get_column_names()):
             table.heading(column, text=column)
 
         table.grid(row=0, column=0)
 
-        cur = cnt.cursor()
         available = "available"
 
         query = f"SELECT * FROM {available}"
         cur.execute(query)
-        all_rows = cur.fetchall()
-
-        for idx, row in enumerate(all_rows):
-            table.insert("", tk.END, values=(idx + 1,) + row)
-
+        # all_rows = cur.fetchall()
+        #
+        # for row in all_rows:
+        #     # Access the chosen column for indexing (e.g., row[0] for first column)
+        #     table.insert("", tk.END, values=(row[0],) + row[1:])  # Adjust indexing based on your chosen column
+        #
         table_window.mainloop()
 
     def loan_book(self):
@@ -411,7 +377,7 @@ class LibraryManagementGUI:
 
     def view_loans(self):
         table_window = tk.Toplevel(self.master)
-        table_window.title("Инвентарна книга")
+        table_window.title("Взети книги")
 
         table = ttk.Treeview(table_window, columns=self.get_column_names())
         table.heading("#0", text="ID")
@@ -434,5 +400,29 @@ class LibraryManagementGUI:
         table_window.mainloop()
 
     def search(self):
-        print("Hello world")
-        
+        search_name = self.search_term.get()
+
+        available_results = []
+        available_cursor = cnt.cursor()
+        available = "available"
+        search_query = f"SELECT * FROM {available} WHERE Име = ?"
+        available_cursor.execute(search_query, (search_name,))
+        available_data = available_cursor.fetchall()
+        if available_data:
+            available_results.append(f"Налични книги:")
+            for row in available_data:
+                available_results.append(f"\t- {', '.join(row)}")
+
+        taken_results = []
+        taken_cursor = cnt.cursor()
+        taken = "taken"
+        search_query = f"SELECT * FROM {taken} WHERE Име = ?"
+        taken_cursor.execute(search_query, (search_name,))
+        taken_data = taken_cursor.fetchall()
+        if taken_data:
+            taken_results.append(f"Заети книги:")
+            for row in taken_data:
+                taken_results.append(f"\t- {', '.join(row)}")
+
+        search_results = "\n".join(available_results + taken_results)
+        self.search_results_label.config(text=search_results)
