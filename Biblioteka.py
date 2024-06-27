@@ -146,6 +146,16 @@ class LibraryManagementGUI:
                 "Чужд автор",
                 "Наличен брой"]
 
+    def get_column_names2(self):
+    return ["Име",
+            "Автор",
+            "Дата_на_вписване",
+            "Инвентар",
+            "Сигнатура",
+            "Бг_автор",
+            "Чужд_автор",
+            "Взети книги"]
+
     def add_book(self):
         cur = cnt.cursor()
 
@@ -371,26 +381,26 @@ class LibraryManagementGUI:
         cnt.commit()
 
     def view_loans(self):
+            def view_loans(self):
         table_window = tk.Toplevel(self.master)
-        table_window.title("Взети книги")
+        table_window.title("Инвентарна книга")
 
-        table = ttk.Treeview(table_window, columns=self.get_column_names())
-        table.heading("#0", text="ID")
+        table = ttk.Treeview(table_window, columns=self.get_column_names(), show="headings")
 
-        for idx, column in enumerate(self.get_column_names()):
+        for idx, column in enumerate(self.get_column_names2()):
             table.heading(column, text=column)
 
-        table.grid(row=0, column=0)
+        table.grid(row=0, column=1)
 
         cur = cnt.cursor()
-        taken = "taken"
+        taken_table = "taken"
 
-        query = f"SELECT * FROM {taken}"
+        query = f"SELECT * FROM {taken_table}"
         cur.execute(query)
         all_rows = cur.fetchall()
 
         for idx, row in enumerate(all_rows):
-            table.insert("", tk.END, values=(idx + 1,) + row)
+            table.insert("", tk.END, values=row)
 
         table_window.mainloop()
 
