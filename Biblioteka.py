@@ -233,30 +233,25 @@ class LibraryManagementGUI:
         cur.execute(delete_query)
         cnt.commit()
 
-    def view_invent(self):
+        def view_invent(self):
         table_window = tk.Toplevel(self.master)
         table_window.title("Инвентарна книга")
-        cur = cnt.cursor()
 
-        table = ttk.Treeview(table_window, columns=self.get_column_names())
-
-        table.heading("#0", text="Име")
+        table = ttk.Treeview(table_window, columns=self.get_column_names(), show="headings")
 
         for idx, column in enumerate(self.get_column_names()):
             table.heading(column, text=column)
 
-        table.grid(row=0, column=0)
+        table.grid(row=0, column=1)
 
+        cur = cnt.cursor()
         available = "available"
-
         query = f"SELECT * FROM {available}"
         cur.execute(query)
-        # all_rows = cur.fetchall()
-        #
-        # for row in all_rows:
-        #     # Access the chosen column for indexing (e.g., row[0] for first column)
-        #     table.insert("", tk.END, values=(row[0],) + row[1:])  # Adjust indexing based on your chosen column
-        #
+        all_rows = cur.fetchall()
+        for idx, row in enumerate(all_rows):
+            table.insert("", tk.END, values=row)
+
         table_window.mainloop()
 
     def loan_book(self):
