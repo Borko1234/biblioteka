@@ -1,0 +1,58 @@
+cur = cnt.cursor()
+        available = "available"
+        taken = "taken"
+        data = (self.ime.get(),
+                self.avtor.get(),
+                self.vpisvane.get(),
+                self.invent_num.get(),
+                self.signat.get(),
+                self.bgavtor.get(),
+                self.chujdavtor.get(),
+                self.nalichni_knigi.get())
+
+        search_value = [(self.ime.get(),)]
+        column_name = ["Име"]
+        conditions = []
+        for i, value in enumerate(search_value):
+            column = column_name[i]
+            conditions.append(f"{column} = ?")
+
+        available_count_query = f"""
+            SELECT Наличен_брой FROM {available} WHERE Име = ?
+        """
+        cur.execute(available_count_query, (data[0],))
+        current_available_count = cur.fetchone()
+
+        if current_available_count:
+            new_available_count = current_available_count[0] + 1
+            update_available_query = f"""
+                UPDATE {available}
+                SET Наличен_брой = ?
+                WHERE Име = ?
+            """
+            cur.execute(update_available_query, (new_available_count, data[0]))
+
+        taken_count_query = f"""
+            SELECT Наличен_брой FROM {taken} WHERE Име = ?
+        """
+        cur.execute(taken_count_query, (data[0],))
+        current_taken_count = cur.fetchone()
+
+        if current_taken_count:
+            new_taken_count = current_taken_count[0] - 1
+
+            if new_taken_count >= 0:
+                update_taken_query = f"""
+                    UPDATE {taken}
+                    SET Наличен_брой = ?
+                    WHERE Име = ?
+                """
+                cur.execute(update_taken_query, (new_taken_count, data[0]))
+            else:
+                delete_query = f"""
+                    DELETE FROM {taken}
+                    WHERE Име = ?
+                """
+                cur.execute(delete_query, (data[0],))
+
+        cnt.commit()
