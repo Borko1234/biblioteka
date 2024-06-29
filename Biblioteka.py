@@ -243,7 +243,7 @@ class LibraryManagementGUI:
         cur.execute(delete_query)
         cnt.commit()
 
-        def view_invent(self):
+    def view_invent(self):
         table_window = tk.Toplevel(self.master)
         table_window.title("Инвентарна книга")
 
