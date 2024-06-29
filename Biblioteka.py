@@ -381,7 +381,6 @@ class LibraryManagementGUI:
         cnt.commit()
 
     def view_loans(self):
-            def view_loans(self):
         table_window = tk.Toplevel(self.master)
         table_window.title("Инвентарна книга")
 
